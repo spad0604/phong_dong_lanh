@@ -1,0 +1,34 @@
+name: phong_dong_lanh
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  http: ^1.5.0
+  args: ^2.7.0
+  get: ^4.7.2
+
+  firebase_core: ^4.0.0
+  firebase_database: ^12.0.0
+  firebase_analytics: ^12.0.0
+  fl_chart: ^1.1.0
+  intl: ^0.20.2
+
+  supabase: ^2.10.2
+  supabase_flutter: ^2.12.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
