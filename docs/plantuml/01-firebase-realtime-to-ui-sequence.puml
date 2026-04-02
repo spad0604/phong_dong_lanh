@@ -1,0 +1,15 @@
+@startuml
+title Firebase RTDB -> UI (thời gian thực)
+
+actor "Thiết bị" as D
+participant "RTDB" as DB
+participant "Kho dữ liệu" as R
+participant "StreamBuilder" as SB
+participant "UI" as UI
+
+D -> DB: cập nhật dữ liệu
+DB -> R: onValue
+R -> SB: phát snapshot mới
+SB -> UI: rebuild
+
+@enduml

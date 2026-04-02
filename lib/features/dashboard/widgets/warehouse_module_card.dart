@@ -125,8 +125,8 @@ class WarehouseModuleCard extends StatelessWidget {
                         highlighted: highlighted,
                       ),
                       _StatePill(
-                        icon: Icons.air_outlined,
-                        label: data.state.fanOn ? 'Quạt bật' : 'Quạt tắt',
+                        icon: Icons.volume_up_outlined,
+                        label: data.state.fanOn ? 'Còi bật' : 'Còi tắt',
                         highlighted: highlighted,
                       ),
                       _StatePill(

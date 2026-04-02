@@ -9,6 +9,9 @@ class DashboardController extends GetxController {
 
   final WarehouseRepository repository;
 
+  /// Tập phòng đang chọn. Rỗng = tất cả phòng.
+  final RxSet<String> selectedWarehouseIds = <String>{}.obs;
+
   final warehouseModules = const <WarehouseModule>[
     WarehouseModule(
       id: 'kho_1',
@@ -31,6 +34,25 @@ class DashboardController extends GetxController {
       subtitle: 'Thuốc và vật tư nhạy nhiệt',
     ),
   ];
+
+  List<WarehouseModule> get filteredModules {
+    if (selectedWarehouseIds.isEmpty) return warehouseModules;
+    return warehouseModules
+        .where((m) => selectedWarehouseIds.contains(m.id))
+        .toList(growable: false);
+  }
+
+  void clearSelectedWarehouses() {
+    selectedWarehouseIds.clear();
+  }
+
+  void setWarehouseSelected(String warehouseId, bool selected) {
+    if (selected) {
+      selectedWarehouseIds.add(warehouseId);
+      return;
+    }
+    selectedWarehouseIds.remove(warehouseId);
+  }
 
   void openWarehouse(WarehouseModule module) {
     Get.toNamed(

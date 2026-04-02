@@ -15,6 +15,7 @@ class PhongDongLanhApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      title: 'Phòng Đông Lạnh',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       defaultTransition: Transition.noTransition,

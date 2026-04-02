@@ -1,0 +1,31 @@
+@startuml
+title Bấm UI -> cập nhật RTDB -> UI cập nhật
+
+actor "Người dùng" as U
+participant "UI" as UI
+participant "Kho dữ liệu" as R
+participant "RTDB" as DB
+participant "StreamBuilder" as SB
+
+== Điều khiển ==
+U -> UI: bấm / gạt công tắc
+UI -> R: setDoorOpen / setAutoMode / setFanOn / setAcOn
+R -> DB: cập nhật state
+DB -> SB: onValue
+SB -> UI: cập nhật
+
+== Ngưỡng ==
+U -> UI: lưu ngưỡng
+UI -> R: setThresholds
+R -> DB: cập nhật thresholds
+DB -> SB: onValue
+SB -> UI: cập nhật
+
+== RFID ==
+U -> UI: nhập + ghi nhận RFID
+UI -> R: registerScan
+R -> DB: transaction inventory
+DB -> SB: onValue
+SB -> UI: cập nhật
+
+@enduml

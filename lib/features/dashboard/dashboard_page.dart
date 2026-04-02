@@ -22,30 +22,95 @@ class DashboardPage extends GetView<DashboardController> {
                 final useTwoColumns = width >= 900;
                 final cardWidth = useTwoColumns ? (width - 18) / 2 : width;
 
-                return ListView(
-                  padding: const EdgeInsets.fromLTRB(18, 14, 18, 22),
-                  children: [
-                    // _OverviewHero(
-                    //   moduleCount: controller.warehouseModules.length,
-                    // ),
-                    // const SizedBox(height: 18),
-                    Wrap(
-                      spacing: 18,
-                      runSpacing: 18,
-                      children: [
-                        for (final module in controller.warehouseModules)
-                          SizedBox(
-                            width: cardWidth,
-                            child: WarehouseModuleCard(
-                              module: module,
-                              repository: controller.repository,
-                              onTap: () => controller.openWarehouse(module),
-                            ),
+                return Obx(() {
+                  final modules = controller.filteredModules;
+                  final selectedIds = controller.selectedWarehouseIds;
+
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(18, 14, 18, 22),
+                    children: [
+                      Card(
+                        margin: EdgeInsets.zero,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Chọn phòng',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: selectedIds.isEmpty
+                                        ? null
+                                        : controller.clearSelectedWarehouses,
+                                    child: const Text('Tất cả'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 8,
+                                children: [
+                                  for (final module in controller.warehouseModules)
+                                    InkWell(
+                                      borderRadius: BorderRadius.circular(12),
+                                      onTap: () {
+                                        final next = !selectedIds.contains(module.id);
+                                        controller.setWarehouseSelected(module.id, next);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 4,
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Checkbox(
+                                              value: selectedIds.contains(module.id),
+                                              onChanged: (value) {
+                                                controller.setWarehouseSelected(
+                                                  module.id,
+                                                  value ?? false,
+                                                );
+                                              },
+                                            ),
+                                            Text(module.title),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
                           ),
-                      ],
-                    ),
-                  ],
-                );
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Wrap(
+                        spacing: 18,
+                        runSpacing: 18,
+                        children: [
+                          for (final module in modules)
+                            SizedBox(
+                              width: cardWidth,
+                              child: WarehouseModuleCard(
+                                module: module,
+                                repository: controller.repository,
+                                onTap: () => controller.openWarehouse(module),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  );
+                });
               },
             ),
           ),

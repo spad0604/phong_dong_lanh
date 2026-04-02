@@ -227,7 +227,7 @@ class _ControlPanel extends StatelessWidget {
                 value: snapshot.state.doorOpen ? 'MỞ' : 'ĐÓNG',
               ),
               _QuickStateChip(
-                label: 'Quạt',
+                label: 'Còi',
                 value: snapshot.state.fanOn ? 'BẬT' : 'TẮT',
               ),
               _QuickStateChip(
@@ -263,7 +263,7 @@ class _ControlPanel extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             title: const Text('Tự động điều khiển theo ngưỡng'),
             subtitle: const Text(
-              'Tự bật quạt hoặc điều hòa khi vượt ngưỡng cài đặt',
+              'Tự bật còi (độ ẩm) và điều hòa (nhiệt độ) khi vượt ngưỡng',
             ),
             value: snapshot.state.autoMode,
             onChanged: (value) => repository.setAutoMode(warehouseId, value),
@@ -276,7 +276,7 @@ class _ControlPanel extends StatelessWidget {
                   children: [
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Quạt thủ công'),
+                      title: const Text('Còi thủ công'),
                       value: snapshot.state.fanOn,
                       onChanged: snapshot.state.autoMode
                           ? null
@@ -299,7 +299,7 @@ class _ControlPanel extends StatelessWidget {
                   Expanded(
                     child: SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Quạt thủ công'),
+                      title: const Text('Còi thủ công'),
                       value: snapshot.state.fanOn,
                       onChanged: snapshot.state.autoMode
                           ? null
@@ -361,10 +361,8 @@ class _ActivityPanel extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         _SectionCard(
-          title: 'Nhập kho bằng RFID',
+          title: 'RFID gần nhất',
           child: ScanPanel(
-            warehouseId: warehouseId,
-            repository: repository,
             lastScanCode: snapshot.inventory.lastScanCode,
             lastScanType: snapshot.inventory.lastScanType,
             lastScanTimestampMs: snapshot.inventory.lastScanTimestampMs,
@@ -458,6 +456,10 @@ class _InventoryListPanel extends StatelessWidget {
                     spacing: 10,
                     runSpacing: 10,
                     children: [
+                      _InfoPill(
+                        label: 'Ngày sản xuất',
+                        value: _formatDate(item.manufacturedAtMs),
+                      ),
                       _InfoPill(
                         label: 'Hạn dùng',
                         value: _formatDate(item.expiresAtMs),

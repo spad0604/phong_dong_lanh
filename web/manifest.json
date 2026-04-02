@@ -1,6 +1,6 @@
 {
-    "name": "phong_dong_lanh",
-    "short_name": "phong_dong_lanh",
+    "name": "Phòng Đông Lạnh",
+    "short_name": "Phòng Đông Lạnh",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
