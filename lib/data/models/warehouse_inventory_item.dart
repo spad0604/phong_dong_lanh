@@ -1,5 +1,6 @@
 class WarehouseInventoryItem {
   const WarehouseInventoryItem({
+    required this.itemKey,
     required this.rfid,
     required this.inboundAtMs,
     this.manufacturedAtMs,
@@ -8,6 +9,7 @@ class WarehouseInventoryItem {
     this.label,
   });
 
+  final String itemKey;
   final String rfid;
   final int inboundAtMs;
   final int? manufacturedAtMs;
@@ -21,6 +23,15 @@ class WarehouseInventoryItem {
     if (value is int) return value;
     if (value is num) return value.toInt();
     if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  // Accept either epoch milliseconds or epoch seconds.
+  // Return null for clearly invalid/unsynced values to avoid showing 1970 in UI.
+  static int? normalizeEpochMs(int? raw) {
+    if (raw == null) return null;
+    if (raw >= 1700000000000) return raw; // ms epoch (>= ~2023)
+    if (raw >= 1700000000 && raw < 20000000000) return raw * 1000; // sec epoch
     return null;
   }
 
@@ -79,18 +90,28 @@ class WarehouseInventoryItem {
 
   factory WarehouseInventoryItem.fromJson(
     Map<Object?, Object?> json, {
+    required String itemKey,
     required String fallbackRfid,
   }) {
     final uid = _normUid(json['rfid']?.toString() ?? fallbackRfid);
     final meta = _catalog[uid];
 
+    final inboundMs = normalizeEpochMs(_toNullableInt(json['inboundAtMs']));
+    final manufacturedMs = normalizeEpochMs(
+      _toNullableInt(json['manufacturedAtMs']) ?? meta?.mfgMs,
+    );
+    final expiresMs = normalizeEpochMs(
+      _toNullableInt(json['expiresAtMs']) ?? meta?.expMs,
+    );
+    final outboundMs = normalizeEpochMs(_toNullableInt(json['outboundAtMs']));
+
     return WarehouseInventoryItem(
+      itemKey: itemKey,
       rfid: uid,
-      inboundAtMs: _toNullableInt(json['inboundAtMs']) ?? 0,
-      manufacturedAtMs:
-          _toNullableInt(json['manufacturedAtMs']) ?? meta?.mfgMs,
-      expiresAtMs: _toNullableInt(json['expiresAtMs']) ?? meta?.expMs,
-      outboundAtMs: _toNullableInt(json['outboundAtMs']),
+      inboundAtMs: inboundMs ?? 0,
+      manufacturedAtMs: manufacturedMs,
+      expiresAtMs: expiresMs,
+      outboundAtMs: outboundMs,
       label: json['label']?.toString() ?? meta?.name,
     );
   }

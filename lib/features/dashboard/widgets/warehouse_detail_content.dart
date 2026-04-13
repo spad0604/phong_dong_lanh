@@ -371,34 +371,141 @@ class _ActivityPanel extends StatelessWidget {
         const SizedBox(height: 18),
         _SectionCard(
           title: 'Danh sách hàng theo RFID',
-          child: _InventoryListPanel(items: snapshot.inventory.items),
+          child: _InventoryListPanel(
+            warehouseId: warehouseId,
+            repository: repository,
+            items: snapshot.inventory.items,
+          ),
         ),
       ],
     );
   }
 }
 
-class _InventoryListPanel extends StatelessWidget {
-  const _InventoryListPanel({required this.items});
+class _InventoryListPanel extends StatefulWidget {
+  const _InventoryListPanel({
+    required this.warehouseId,
+    required this.repository,
+    required this.items,
+  });
 
+  final String warehouseId;
+  final WarehouseRepository repository;
   final List<WarehouseInventoryItem> items;
 
+  @override
+  State<_InventoryListPanel> createState() => _InventoryListPanelState();
+}
+
+class _InventoryListPanelState extends State<_InventoryListPanel> {
+  String? _savingItemKey;
+  String? _savingField;
+
   String _formatDateTime(int? timestampMs) {
-    if (timestampMs == null || timestampMs <= 0) return 'Chưa có';
+    if (timestampMs == null || timestampMs < 1700000000000) {
+      return 'Chưa đồng bộ giờ';
+    }
     return DateFormat(
       'HH:mm dd/MM/yyyy',
     ).format(DateTime.fromMillisecondsSinceEpoch(timestampMs));
   }
 
   String _formatDate(int? timestampMs) {
-    if (timestampMs == null || timestampMs <= 0) return 'Chưa cập nhật';
+    if (timestampMs == null || timestampMs < 1700000000000) {
+      return 'Chưa cập nhật';
+    }
     return DateFormat(
       'dd/MM/yyyy',
     ).format(DateTime.fromMillisecondsSinceEpoch(timestampMs));
   }
 
+  DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  Future<void> _pickAndSaveDate(
+    BuildContext context,
+    WarehouseInventoryItem item, {
+    required bool isManufactured,
+  }) async {
+    if (item.itemKey.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không xác định được mã kiện để cập nhật')),
+      );
+      return;
+    }
+
+    final currentMs = isManufactured ? item.manufacturedAtMs : item.expiresAtMs;
+    final initialDate = currentMs != null && currentMs >= 1700000000000
+        ? _dateOnly(DateTime.fromMillisecondsSinceEpoch(currentMs))
+        : _dateOnly(DateTime.now());
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2020, 1, 1),
+      lastDate: DateTime(2100, 12, 31),
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() {
+      _savingItemKey = item.itemKey;
+      _savingField = isManufactured ? 'mfg' : 'exp';
+    });
+
+    try {
+      await widget.repository.updateInventoryItemDates(
+        widget.warehouseId,
+        itemKey: item.itemKey,
+        manufacturedDate: isManufactured ? picked : null,
+        expiryDate: isManufactured ? null : picked,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isManufactured
+                ? 'Đã cập nhật ngày sản xuất'
+                : 'Đã cập nhật hạn sử dụng',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi cập nhật ngày: $e')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _savingItemKey = null;
+          _savingField = null;
+        });
+      }
+    }
+  }
+
+  Widget _editableDatePill({
+    required String label,
+    required String value,
+    required VoidCallback? onTap,
+    required bool saving,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Opacity(
+        opacity: saving ? 0.7 : 1,
+        child: _InfoPill(
+          label: label,
+          value: saving ? 'Đang lưu...' : value,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final items = widget.items;
     if (items.isEmpty) {
       return Text(
         'Chưa có kiện hàng nào được gán RFID trong kho này.',
@@ -409,7 +516,13 @@ class _InventoryListPanel extends StatelessWidget {
     final now = DateTime.now().millisecondsSinceEpoch;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'Nhấn vào Ngày sản xuất hoặc Hạn dùng để chỉnh sửa.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 10),
         for (final item in items)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -456,13 +569,31 @@ class _InventoryListPanel extends StatelessWidget {
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      _InfoPill(
+                      _editableDatePill(
                         label: 'Ngày sản xuất',
                         value: _formatDate(item.manufacturedAtMs),
+                        onTap: _savingItemKey == item.itemKey
+                            ? null
+                            : () => _pickAndSaveDate(
+                                context,
+                                item,
+                                isManufactured: true,
+                              ),
+                        saving:
+                            _savingItemKey == item.itemKey && _savingField == 'mfg',
                       ),
-                      _InfoPill(
+                      _editableDatePill(
                         label: 'Hạn dùng',
                         value: _formatDate(item.expiresAtMs),
+                        onTap: _savingItemKey == item.itemKey
+                            ? null
+                            : () => _pickAndSaveDate(
+                                context,
+                                item,
+                                isManufactured: false,
+                              ),
+                        saving:
+                            _savingItemKey == item.itemKey && _savingField == 'exp',
                       ),
                       _InfoPill(
                         label: 'Nhập kho',

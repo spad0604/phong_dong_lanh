@@ -30,6 +30,13 @@ class WarehouseInventory {
     return fallback;
   }
 
+  static int? _toNullableInt(Object? value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
   factory WarehouseInventory.fromJson(Map<Object?, Object?> json) {
     final lastScan = json['lastScan'];
     final lastScanJson = lastScan is Map<Object?, Object?> ? lastScan : null;
@@ -43,6 +50,7 @@ class WarehouseInventory {
           items.add(
             WarehouseInventoryItem.fromJson(
               value,
+              itemKey: entry.key?.toString() ?? '',
               fallbackRfid: entry.key?.toString() ?? '',
             ),
           );
@@ -65,9 +73,9 @@ class WarehouseInventory {
           : activeCount,
       lastScanCode: lastScanJson?['code']?.toString(),
       lastScanType: lastScanJson?['type']?.toString(),
-      lastScanTimestampMs: lastScanJson?['ts'] is num
-          ? (lastScanJson?['ts'] as num).toInt()
-          : int.tryParse(lastScanJson?['ts']?.toString() ?? ''),
+      lastScanTimestampMs: WarehouseInventoryItem.normalizeEpochMs(
+        _toNullableInt(lastScanJson?['ts']),
+      ),
       items: items,
     );
   }

@@ -18,9 +18,16 @@ class ScanPanel extends StatefulWidget {
 }
 
 class _ScanPanelState extends State<ScanPanel> {
+  int? _normalizeEpochMs(int? raw) {
+    if (raw == null) return null;
+    if (raw >= 1700000000000) return raw;
+    if (raw >= 1700000000 && raw < 20000000000) return raw * 1000;
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final lastTs = widget.lastScanTimestampMs;
+    final lastTs = _normalizeEpochMs(widget.lastScanTimestampMs);
     final lastTime = lastTs == null
         ? null
         : DateFormat(

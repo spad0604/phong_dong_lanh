@@ -95,6 +95,35 @@ class WarehouseRepository {
     });
   }
 
+  Future<void> updateInventoryItemDates(
+    String warehouseId, {
+    required String itemKey,
+    DateTime? manufacturedDate,
+    DateTime? expiryDate,
+  }) {
+    final updates = <String, Object?>{};
+
+    if (manufacturedDate != null) {
+      final d = DateTime(
+        manufacturedDate.year,
+        manufacturedDate.month,
+        manufacturedDate.day,
+      );
+      updates['manufacturedAtMs'] = d.millisecondsSinceEpoch;
+    }
+
+    if (expiryDate != null) {
+      final d = DateTime(expiryDate.year, expiryDate.month, expiryDate.day);
+      updates['expiresAtMs'] = d.millisecondsSinceEpoch;
+    }
+
+    if (updates.isEmpty || itemKey.trim().isEmpty) {
+      return Future.value();
+    }
+
+    return _warehouseRef(warehouseId).child('inventory/items/$itemKey').update(updates);
+  }
+
   Future<void> registerScan(
     String warehouseId, {
     required String code,
