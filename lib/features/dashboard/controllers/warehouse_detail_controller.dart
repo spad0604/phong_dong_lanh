@@ -16,7 +16,7 @@ class WarehouseDetailController extends GetxController {
     return null;
   }
 
-  String get title => module?.title ?? warehouseId;
+  String get title => module?.defaultTitle ?? warehouseId;
 
-  String get subtitle => module?.subtitle ?? 'Mô-đun giám sát kho lạnh';
+  String get subtitle => module?.defaultSubtitle ?? 'Mô-đun giám sát kho lạnh';
 }

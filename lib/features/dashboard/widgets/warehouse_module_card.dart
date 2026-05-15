@@ -24,6 +24,9 @@ class WarehouseModuleCard extends StatelessWidget {
       builder: (context, snapshot) {
         final data = snapshot.data ?? WarehouseSnapshot.defaults(module.id);
 
+        final displayTitle = data.meta.name ?? module.defaultTitle;
+        final displaySubtitle = data.meta.subtitle ?? module.defaultSubtitle;
+
         final updatedAt = data.telemetry.updatedAtMs > 0
             ? DateTime.fromMillisecondsSinceEpoch(data.telemetry.updatedAtMs)
             : null;
@@ -67,7 +70,7 @@ class WarehouseModuleCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              module.title,
+                              displayTitle,
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.w800,
                                 color: const Color(0xFF17324D),
@@ -75,7 +78,7 @@ class WarehouseModuleCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              module.subtitle,
+                              displaySubtitle,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: const Color(0xFF61778F),
                                   ),
@@ -109,6 +112,18 @@ class WarehouseModuleCard extends StatelessWidget {
                       _MetricChip(
                         label: 'Số kiện',
                         value: '${data.inventory.count}',
+                        highlighted: highlighted,
+                        warning: false,
+                      ),
+                      _MetricChip(
+                        label: 'Ngưỡng nhiệt độ',
+                        value: '${data.thresholds.tempMaxC.toStringAsFixed(1)} °C',
+                        highlighted: highlighted,
+                        warning: false,
+                      ),
+                      _MetricChip(
+                        label: 'Ngưỡng độ ẩm',
+                        value: '${data.thresholds.humidityMaxPct.toStringAsFixed(1)} %',
                         highlighted: highlighted,
                         warning: false,
                       ),

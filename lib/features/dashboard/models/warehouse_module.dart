@@ -1,11 +1,11 @@
 class WarehouseModule {
   const WarehouseModule({
     required this.id,
-    required this.title,
-    required this.subtitle,
+    required this.defaultTitle,
+    required this.defaultSubtitle,
   });
 
   final String id;
-  final String title;
-  final String subtitle;
+  final String defaultTitle;
+  final String defaultSubtitle;
 }

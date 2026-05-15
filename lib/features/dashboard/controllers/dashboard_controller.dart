@@ -15,23 +15,23 @@ class DashboardController extends GetxController {
   final warehouseModules = const <WarehouseModule>[
     WarehouseModule(
       id: 'kho_1',
-      title: 'Kho 1',
-      subtitle: 'Thủy sản đông lạnh',
+      defaultTitle: 'Kho 1',
+      defaultSubtitle: 'Thủy sản đông lạnh',
     ),
     WarehouseModule(
       id: 'kho_2',
-      title: 'Kho 2',
-      subtitle: 'Rau củ bảo quản mát',
+      defaultTitle: 'Kho 2',
+      defaultSubtitle: 'Rau củ bảo quản mát',
     ),
     WarehouseModule(
       id: 'kho_3',
-      title: 'Kho 3',
-      subtitle: 'Sữa và chế phẩm',
+      defaultTitle: 'Kho 3',
+      defaultSubtitle: 'Sữa và chế phẩm',
     ),
     WarehouseModule(
       id: 'kho_4',
-      title: 'Kho 4',
-      subtitle: 'Thuốc và vật tư nhạy nhiệt',
+      defaultTitle: 'Kho 4',
+      defaultSubtitle: 'Thuốc và vật tư nhạy nhiệt',
     ),
   ];
 

@@ -95,6 +95,33 @@ class WarehouseRepository {
     });
   }
 
+  Future<void> setWarehouseName(String warehouseId, String name) {
+    return setWarehouseMeta(warehouseId, name: name);
+  }
+
+  Future<void> setWarehouseMeta(
+    String warehouseId, {
+    String? name,
+    String? subtitle,
+  }) {
+    if (warehouseId.trim().isEmpty) return Future.value();
+
+    final updates = <String, Object?>{};
+
+    if (name != null) {
+      final trimmed = name.trim();
+      updates['name'] = trimmed.isEmpty ? null : trimmed;
+    }
+
+    if (subtitle != null) {
+      final trimmed = subtitle.trim();
+      updates['subtitle'] = trimmed.isEmpty ? null : trimmed;
+    }
+
+    if (updates.isEmpty) return Future.value();
+    return _warehouseRef(warehouseId).child('meta').update(updates);
+  }
+
   Future<void> updateInventoryItemDates(
     String warehouseId, {
     required String itemKey,
@@ -136,15 +163,15 @@ class WarehouseRepository {
 
     await warehouseRef.child('inventory').runTransaction((value) {
       final inventory = value is Map
-          ? Map<Object?, Object?>.from(value as Map)
+        ? Map<Object?, Object?>.from(value)
           : <Object?, Object?>{};
       final rawItems = inventory['items'];
       final items = rawItems is Map
-          ? Map<Object?, Object?>.from(rawItems as Map)
+        ? Map<Object?, Object?>.from(rawItems)
           : <Object?, Object?>{};
       final rawExisting = items[itemKey];
       final existing = rawExisting is Map
-          ? Map<Object?, Object?>.from(rawExisting as Map)
+        ? Map<Object?, Object?>.from(rawExisting)
           : <Object?, Object?>{};
 
       items[itemKey] = {

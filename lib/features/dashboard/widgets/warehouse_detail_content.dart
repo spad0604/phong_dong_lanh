@@ -27,6 +27,8 @@ class WarehouseDetailContent extends StatelessWidget {
       builder: (context, snapshot) {
         final data = snapshot.data ?? WarehouseSnapshot.defaults(warehouseId);
 
+        final displayTitle = data.meta.name ?? title;
+
         final updatedAt = data.telemetry.updatedAtMs > 0
             ? DateTime.fromMillisecondsSinceEpoch(data.telemetry.updatedAtMs)
             : null;
@@ -44,7 +46,7 @@ class WarehouseDetailContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _HeroPanel(
-                title: title,
+                title: displayTitle,
                 updatedAtText: dateText,
                 snapshot: data,
                 temperatureWarning: tempOver,
@@ -426,8 +428,10 @@ class _InventoryListPanelState extends State<_InventoryListPanel> {
     WarehouseInventoryItem item, {
     required bool isManufactured,
   }) async {
+    final messenger = ScaffoldMessenger.of(context);
+
     if (item.itemKey.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Không xác định được mã kiện để cập nhật')),
       );
       return;
@@ -460,7 +464,7 @@ class _InventoryListPanelState extends State<_InventoryListPanel> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text(
             isManufactured
@@ -471,9 +475,7 @@ class _InventoryListPanelState extends State<_InventoryListPanel> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Lỗi cập nhật ngày: $e')));
+      messenger.showSnackBar(SnackBar(content: Text('Lỗi cập nhật ngày: $e')));
     } finally {
       if (mounted) {
         setState(() {

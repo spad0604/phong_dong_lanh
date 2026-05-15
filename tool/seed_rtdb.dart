@@ -89,7 +89,9 @@ void main(List<String> args) async {
         'label': 'Kiện hàng ${(i + 1).toString().padLeft(2, '0')}',
         'inboundAtMs': inboundAt,
         'expiresAtMs': expiresAt,
-        if (outboundAt != null) 'outboundAtMs': outboundAt,
+        ...?(outboundAt == null
+            ? null
+            : <String, Object>{'outboundAtMs': outboundAt}),
       };
     }
 
